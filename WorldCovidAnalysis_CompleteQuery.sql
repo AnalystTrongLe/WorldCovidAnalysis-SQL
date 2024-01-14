@@ -1,8 +1,8 @@
 /* Analysis of Our World In Data's COVID-19 Data 2024-01-10
-Creator:		Trong Le (Data Analyst)
+Creator:	Trong Le (Data Analyst)
 Last Modified:	2024-01-14
-Github:			https://github.com/AnalystTrongLe
-Medium:			https://medium.com/@analyst.trong.le
+Github:		https://github.com/AnalystTrongLe
+Medium:		https://medium.com/@analyst.trong.le
 Inspired by:	https://youtu.be/qfyynHBFOsM?si=8lQj6troWABSpWT5
 Data Source:	https://github.com/owid/covid-19-data/tree/master/public/data
 */
