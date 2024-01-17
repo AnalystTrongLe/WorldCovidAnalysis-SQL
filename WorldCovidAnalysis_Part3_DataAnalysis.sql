@@ -53,27 +53,28 @@ SELECT TOP 5
 FROM #ProcessedCovidData
 ORDER BY 4 DESC;
 
---Calculating incidence rate and mortality rate as units per 1,000,000
+--Calculating incidence rate and mortality rate
 SELECT date,
-	new_cases/population * 1000000 AS incidence_rate,
-	new_deaths/population * 1000000 AS mortality_rate
+	new_cases/population * 100 AS incidence_rate,
+	new_deaths/population * 100 AS mortality_rate
 FROM #ProcessedCovidData
 WHERE new_cases IS NOT NULL OR new_deaths IS NOT NULL
 ORDER BY 1;
 
---Determining the highest incidence rate and highest mortality as units per 1,000,000
-SELECT MAX(new_cases)/MAX(population) * 1000000 AS highest_incidence_rate,
-	MAX(new_deaths)/MAX(population) * 1000000 AS highest_mortality_rate
+--Determining the highest incidence rate and highest mortality
+SELECT MAX(new_cases)/MAX(population) * 100 AS highest_incidence_rate,
+	MAX(new_deaths)/MAX(population) * 100 AS highest_mortality_rate
 FROM #ProcessedCovidData
 WHERE new_cases IS NOT NULL OR new_deaths IS NOT NULL
 
 ------------------------------------------------------------------------------
 
+--NOTE: Any variable ending with "by_excess_mortality" was filtered to use only countries who reported excess deaths.
+
 /* Evaluating the World's Mortality Rate */
---Comparing COVID-19 mortality rate, expected mortality rate, and excess mortality rate by reports
+--Comparing COVID-19 mortality rate and excess mortality rate by reported
 SELECT date,
-	new_deaths/population * 100 AS covid_mortality_rate,
-	(new_deaths * 100 / population) - excess_mortality AS expected_mortality,
+	new_deaths_by_excess_mortality/population_by_excess_mortality * 100 AS covid_mortality_rate,
 	excess_mortality
 FROM #ProcessedCovidData
 WHERE new_deaths IS NOT NULL OR excess_mortality IS NOT NULL
@@ -96,11 +97,10 @@ ORDER BY 2;
 ------------------------------------------------------------------------------
 
 /* Evaluating the World's Cumulative Mortality Rate */
---Comparing COVID-19 mortality rate, expected mortality rate, and excess mortality rate by total
+--Comparing COVID-19 cumulative mortality rate and excess cumulative mortality rate by reported
 SELECT date,
-	total_deaths/population * 100 AS covid_cumulative_mortality_rate,
-	(total_deaths * 100 / population) - excess_mortality_cumulative AS expected_cumulative_mortality_rate,
-	excess_mortality_cumulative AS excess_cumulative_mortality_rate
+	total_deaths_by_excess_mortality/population_by_excess_mortality * 100 AS covid_cumulative_mortality,
+	excess_mortality_cumulative AS excess_cumulative_mortality
 FROM #ProcessedCovidData
 WHERE total_deaths IS NOT NULL OR excess_mortality_cumulative IS NOT NULL
 ORDER BY 1;
@@ -122,31 +122,28 @@ ORDER BY 2;
 ------------------------------------------------------------------------------
 
 /* Evaluating the World's Absolute-Cumulative Mortality Rate */
---Comparing COVID-19 deaths, expected deaths, and excess deaths
-SELECT date, total_deaths AS covid_deaths,
-	total_deaths - excess_mortality_cumulative_absolute AS expected_deaths,
-	excess_mortality_cumulative_absolute AS excess_deaths
+--Comparing total COVID-19 deaths and total excess deaths
+SELECT date, total_deaths_by_excess_mortality AS total_covid_deaths,
+	excess_mortality_cumulative_absolute AS total_excess_deaths
 FROM #ProcessedCovidData
 WHERE total_deaths IS NOT NULL OR excess_mortality_cumulative_absolute IS NOT NULL
 ORDER BY 1;
 
 --Determining the top 5 reports with the highest excess deaths
 SELECT TOP 5
-	date, total_deaths AS covid_deaths,
-	total_deaths - excess_mortality_cumulative_absolute AS expected_deaths,
-	excess_mortality_cumulative_absolute AS excess_deaths
+	date, total_deaths_by_excess_mortality AS total_covid_deaths,
+	excess_mortality_cumulative_absolute AS total_excess_deaths
 FROM #ProcessedCovidData
 WHERE total_deaths IS NOT NULL OR excess_mortality_cumulative_absolute IS NOT NULL
-ORDER BY 4 DESC;
+ORDER BY 3 DESC;
 
 --Determining when was the lowest excess deaths
 SELECT TOP 5
-	date, total_deaths AS covid_deaths,
-	total_deaths - excess_mortality_cumulative_absolute AS expected_deaths,
-	excess_mortality_cumulative_absolute AS excess_deaths
+	date, total_deaths_by_excess_mortality AS total_covid_deaths,
+	excess_mortality_cumulative_absolute AS total_excess_deaths
 FROM #ProcessedCovidData
 WHERE total_deaths IS NOT NULL AND excess_mortality_cumulative_absolute IS NOT NULL
-ORDER BY 4;
+ORDER BY 3;
 
 ------------------------------------------------------------------------------
 
@@ -178,7 +175,7 @@ WHERE total_cases IS NOT NULL OR total_deaths IS NOT NULL OR total_vaccinations 
 ORDER BY 1;
 
 --Comparing excess deaths with people fully vaccinated
-SELECT date, excess_mortality_cumulative_absolute AS excess_deaths, people_fully_vaccinated
+SELECT date, excess_mortality_cumulative_absolute AS total_excess_deaths, people_fully_vaccinated
 FROM #ProcessedCovidData
 WHERE excess_mortality_cumulative_absolute IS NOT NULL OR people_fully_vaccinated IS NOT NULL
 ORDER BY 1;
